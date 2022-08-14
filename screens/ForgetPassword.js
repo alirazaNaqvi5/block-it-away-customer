@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from 'react-native';
+import { ip } from '../ip';
 
 
 export default function ForgetPassword({navigation}) {
@@ -18,6 +19,7 @@ export default function ForgetPassword({navigation}) {
 
     const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
+  const [userPasswordc, setUserPasswordc] = useState('');
   const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState('');
  
@@ -32,45 +34,28 @@ export default function ForgetPassword({navigation}) {
       alert('Please fill Password');
       return;
     }
-    setLoading(true);
-    let dataToSend = {email: userEmail, password: userPassword};
-    let formBody = [];
-    for (let key in dataToSend) {
-      let encodedKey = encodeURIComponent(key);
-      let encodedValue = encodeURIComponent(dataToSend[key]);
-      formBody.push(encodedKey + '=' + encodedValue);
+    if (!userPasswordc) {
+      alert('Please fill Confirm Password');
+      return;
     }
-    formBody = formBody.join('&');
+    if (userPassword != userPasswordc) {
+      alert('Password and Confirm Password not match');
+      return;
+    }
+    setLoading(true);
+    // let dataToSend = {email: userEmail, password: userPassword};
+    
  
-    fetch('http://localhost:3000/api/user/login', {
+    var requestOptions = {
       method: 'POST',
-      body: formBody,
-      headers: {
-        //Header Defination
-        'Content-Type':
-        'application/x-www-form-urlencoded;charset=UTF-8',
-      },
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        //Hide Loader
-        setLoading(false);
-        console.log(responseJson);
-        // If server response message same as Data Matched
-        if (responseJson.status === 'success') {
-          AsyncStorage.setItem('user_id', responseJson.data.email);
-          console.log(responseJson.data.email);
-          navigation.replace('DrawerNavigationRoutes');
-        } else {
-          setErrortext(responseJson.msg);
-          console.log('Please check your email id or password');
-        }
-      })
-      .catch((error) => {
-        //Hide Loader
-        setLoading(false);
-        console.error(error);
-      });
+      redirect: 'follow'
+    };
+    
+    fetch(`http://${ip}/api/users/forgotPassword?email=${userEmail}&password=${userPassword}`, requestOptions)
+      .then(response => response.text())
+      .then(result => {console.log(result); alert(result); navigation.navigate('Blockit-A-Way')})
+      .catch(error => console.log('error', error));
+      
   };
 
   return (
@@ -121,6 +106,7 @@ export default function ForgetPassword({navigation}) {
               placeholder="Enter Password" //12345
               placeholderTextColor="#8b9cb5"
               keyboardType="default"
+              value={userPassword}
               ref={passwordInputRef}
               onSubmitEditing={Keyboard.dismiss}
               blurOnSubmit={false}
@@ -132,8 +118,9 @@ export default function ForgetPassword({navigation}) {
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserPassword) =>
-                setUserPassword(UserPassword)
+              value={userPasswordc}
+              onChangeText={(UserPasswordc) =>
+                setUserPasswordc(UserPasswordc)
               }
               placeholder="Enter Conformed Password" //12345
               placeholderTextColor="#8b9cb5"
@@ -155,11 +142,11 @@ export default function ForgetPassword({navigation}) {
             style={styles.buttonStyle}
             activeOpacity={0.5}
             // onPress={handleSubmitPress}
-            onPress={  navigation.navigate('DrawerNavigationRoutes')}
+            onPress={  handleSubmitPress}
             >
-            <Text style={styles.buttonTextStyle}>LOGIN</Text>
+            <Text style={styles.buttonTextStyle}>Submit</Text>
           </TouchableOpacity>
-          <Text
+          {/* <Text
             style={styles.  errorTextStyle}
             onPress={() => navigation.navigate('RegisterScreen')}>
            Forget Password
@@ -168,7 +155,7 @@ export default function ForgetPassword({navigation}) {
             style={styles.registerTextStyle}
             onPress={() => navigation.navigate('Registration')}>
             New Here ? Register
-          </Text>
+          </Text> */}
         </KeyboardAvoidingView>
       </View>
     </ScrollView>

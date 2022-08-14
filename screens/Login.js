@@ -1,6 +1,6 @@
 
-import React, {useState, createRef} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {useState, createRef, useContext} from 'react';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
   TextInput,
@@ -13,67 +13,79 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 
+import {AuthContext} from '../navigation/StackNavigator';
+import { ip } from '../ip';
+
 
 export default function Login({navigation}) {
+
+  const { signIn } = React.useContext(AuthContext);
+
 
 
     const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errortext, setErrortext] = useState('');
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
  
   const passwordInputRef = createRef();
   const handleSubmitPress = () => {
-    setErrortext('');
-    if (!userEmail) {
-      alert('Please fill Email');
-      return;
-    }
-    if (!userPassword) {
-      alert('Please fill Password');
-      return;
-    }
-    setLoading(true);
-    let dataToSend = {email: userEmail, password: userPassword};
-    let formBody = [];
-    for (let key in dataToSend) {
-      let encodedKey = encodeURIComponent(key);
-      let encodedValue = encodeURIComponent(dataToSend[key]);
-      formBody.push(encodedKey + '=' + encodedValue);
-    }
-    formBody = formBody.join('&');
- 
-    fetch('http://192.168.18.101:3000/api/users/logins', {
-      method: 'POST',
-      body: formBody,
-      headers: {
-        //Header Defination
-        'Content-Type':
-        'application/x-www-form-urlencoded;charset=UTF-8',
-      },
-    })
-      .then((response) => response.json())
-      .then(async(responseJson) => {
-        //Hide Loader
-        setLoading(false);
-        console.log(responseJson);
-        // If server response message same as Data Matched
-        if (responseJson.status === 'success') {
-         await AsyncStorage.setItem('user_id', responseJson.data.user.email);
-         await AsyncStorage.setItem('user', responseJson.data.user.name);
-          console.log(responseJson.data.email);
-          navigation.replace('CustomerHome');
-        } else {
-          setErrortext(responseJson.msg);
-          console.log('Please check your email id or password');
-        }
-      })
-      .catch((error) => {
-        //Hide Loader
-        setLoading(false);
-        console.error(error);
-      });
+    signIn({email, password});
   };
+  // const handleSubmitPress = () => {
+  //   setErrortext('');
+  //   if (!userEmail) {
+  //     alert('Please fill Email');
+  //     return;
+  //   }
+  //   if (!userPassword) {
+  //     alert('Please fill Password');
+  //     return;
+  //   }
+  //   setLoading(true);
+  //   let dataToSend = {email: userEmail, password: userPassword};
+  //   let formBody = [];
+  //   for (let key in dataToSend) {
+  //     let encodedKey = encodeURIComponent(key);
+  //     let encodedValue = encodeURIComponent(dataToSend[key]);
+  //     formBody.push(encodedKey + '=' + encodedValue);
+  //   }
+  //   formBody = formBody.join('&');
+ 
+  //   fetch('http://192.168.18.101:3000/api/users/logins', {
+  //     method: 'POST',
+  //     body: formBody,
+  //     headers: {
+  //       //Header Defination
+  //       'Content-Type':
+  //       'application/x-www-form-urlencoded;charset=UTF-8',
+  //     },
+  //   })
+  //     .then((response) => response.json())
+  //     .then(async(responseJson) => {
+  //       //Hide Loader
+  //       setLoading(false);
+  //       console.log(responseJson);
+  //       // If server response message same as Data Matched
+  //       if (responseJson.status === 'success') {
+  //        await AsyncStorage.setItem('user_id', responseJson.data.user.email);
+  //        await AsyncStorage.setItem('user', responseJson.data.user.name);
+  //         console.log(responseJson.data.email);
+  //         navigation.replace('CustomerHome');
+  //       } else {
+  //         setErrortext(responseJson.msg);
+  //         console.log('Please check your email id or password');
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       //Hide Loader
+  //       setLoading(false);
+  //       console.error(error);
+  //     });
+  // };
 
   return (
     <View style={styles.mainBody}>
@@ -98,8 +110,9 @@ export default function Login({navigation}) {
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserEmail) =>
-                setUserEmail(UserEmail)
+              value={email}
+              onChangeText={(email) =>
+                setEmail(email)
               }
               placeholder="Enter Email" //dummy@abc.com
               placeholderTextColor="#8b9cb5"
@@ -117,8 +130,9 @@ export default function Login({navigation}) {
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserPassword) =>
-                setUserPassword(UserPassword)
+              value={password}
+              onChangeText={(password) =>
+                setPassword(password)
               }
               placeholder="Enter Password" //12345
               placeholderTextColor="#8b9cb5"

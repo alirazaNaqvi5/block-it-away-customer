@@ -14,7 +14,7 @@ import PackageInformation from '../screens/PackageInformation';
 import  TabNavigator  from "../navigation/TabNavigator";
 
 import ServicePoint from '../screens/ServicePoint';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Button } from 'react-native';
 
 const Drawer = createDrawerNavigator();

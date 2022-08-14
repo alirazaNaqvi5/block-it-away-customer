@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
+import { ip } from '../ip';
 export default function Registeration(props) {
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
@@ -56,7 +57,7 @@ export default function Registeration(props) {
         var dataToSend = {
           name: userName,
           email: userEmail,
-          age: userAge,
+          phone: userAge,
           address: userAddress,
           password: userPassword,
         };
@@ -68,7 +69,7 @@ export default function Registeration(props) {
         }
         formBody = formBody.join('&');
      
-        fetch('http://192.168.18.101:3000/api/users/register', {
+        fetch(`http://${ip}/api/users/register`, {
           method: 'POST',
           body: formBody,
           headers: {
@@ -82,13 +83,14 @@ export default function Registeration(props) {
             //Hide Loader
             setLoading(false);
             console.log(responseJson);
-            alert(responseJson);
+            // alert(responseJson);
             // If server response message same as Data Matched
             if (responseJson.status === 'success') {
               setIsRegistraionSuccess(true);
               console.log(
                 'Registration Successful. Please Login to proceed'
               );
+              alert('Registration Successful. Please Login to proceed')
             } else {
               setErrortext(responseJson.msg);
             }
@@ -158,6 +160,23 @@ export default function Registeration(props) {
         <View style={styles.SectionStyle}>
           <TextInput
             style={styles.inputStyle}
+            onChangeText={(UserAge) => setUserAge(UserAge)}
+            underlineColorAndroid="#f000"
+            placeholder="Phone Number"
+            placeholderTextColor="#8b9cb5"
+            keyboardType="numeric"
+            ref={ageInputRef}
+            returnKeyType="next"
+            onSubmitEditing={() =>
+              addressInputRef.current &&
+              addressInputRef.current.focus()
+            }
+            blurOnSubmit={false}
+          />
+        </View>
+        <View style={styles.SectionStyle}>
+          <TextInput
+            style={styles.inputStyle}
             onChangeText={(UserEmail) => setUserEmail(UserEmail)}
             underlineColorAndroid="#f000"
             placeholder="Enter Email"
@@ -191,23 +210,7 @@ export default function Registeration(props) {
             blurOnSubmit={false}
           />
         </View>
-        <View style={styles.SectionStyle}>
-          <TextInput
-            style={styles.inputStyle}
-            onChangeText={(UserAge) => setUserAge(UserAge)}
-            underlineColorAndroid="#f000"
-            placeholder="Enter Age"
-            placeholderTextColor="#8b9cb5"
-            keyboardType="numeric"
-            ref={ageInputRef}
-            returnKeyType="next"
-            onSubmitEditing={() =>
-              addressInputRef.current &&
-              addressInputRef.current.focus()
-            }
-            blurOnSubmit={false}
-          />
-        </View>
+       
         <View style={styles.SectionStyle}>
           <TextInput
             style={styles.inputStyle}
